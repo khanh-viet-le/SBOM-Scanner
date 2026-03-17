@@ -1,0 +1,8 @@
+/__pycache__
+/.vscode
+/compare_result/*
+/node_modules
+/query_output/*
+/tool_output/*
+/sbom_files/*
+sshkey.pem
