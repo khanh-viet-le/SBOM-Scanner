@@ -6,9 +6,9 @@ from database_manager import DatabaseManager
 # CONFIGURATION
 # ============================================================
 # Path to the list of direct nodes
-INPUT_LIST_PATH = os.path.join("tool_output", "tool_output_direct_nodes.json")
+INPUT_LIST_PATH = os.path.join("output\\tool_output", "tool_output_direct_nodes.json")
 # Folder to save the resulting subtrees
-OUTPUT_DIR = "query_output"
+OUTPUT_DIR = "output\\query_output"
 
 def process_all_direct_nodes():
     # 1. Check if the input file exists

@@ -1,6 +1,4 @@
 import paramiko
-import os
-import json
 import pg8000
 from sshtunnel import SSHTunnelForwarder
 
@@ -92,42 +90,3 @@ class DatabaseManager:
         if self.tunnel:
             self.tunnel.stop()
         print("Disconnected.")
-
-# ============================================================
-# EXECUTION LOGIC
-# ============================================================
-# if __name__ == "__main__":
-#     db = DatabaseManager()
-    
-#     # Target component to search
-#     subtree_name = "cors"
-#     subtree_version = "2.8.5"
-
-#     try:
-#         db.connect()
-        
-#         print(f"Fetching tree for {subtree_name}@{subtree_version}...")
-#         tree_data = db.get_component_tree(subtree_name, subtree_version)
-        
-#         if tree_data:
-#             # 1. Ensure the output directory exists
-#             if not os.path.exists(OUTPUT_DIR):
-#                 os.makedirs(OUTPUT_DIR)
-#                 print(f"Created directory: {OUTPUT_DIR}")
-
-#             # 2. Define the filename following your format
-#             file_name = f"query_output_subtree_{subtree_name}_{subtree_version}.json"
-#             file_path = os.path.join(OUTPUT_DIR, file_name)
-
-#             # 3. Save the result to the JSON file
-#             with open(file_path, "w", encoding="utf-8") as f:
-#                 json.dump(tree_data, f, indent=2, ensure_ascii=False)
-
-#             print(f"\nSUCCESS: Data saved to {file_path}")
-#         else:
-#             print(f"\nNo component found matching {subtree_name} version {subtree_version}")
-
-#     except Exception as e:
-#         print(f"Main Loop Error")
-#     finally:
-#         db.disconnect()

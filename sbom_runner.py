@@ -34,7 +34,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Define specific folders
 INPUT_FOLDER = os.path.join(BASE_DIR, "sbom_files")
-OUTPUT_FOLDER = os.path.join(BASE_DIR, "tool_output")
+OUTPUT_FOLDER = os.path.join(BASE_DIR, "output\\tool_output")
 
 # Ensure the tool_output directory exists
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -111,5 +111,5 @@ if FIND_BY_COMPONENT and SEARCH_NAME:
         json.dump(result, f, indent=2, ensure_ascii=False)
     print(f"    Done: {outfile}")
 
-print("\nProcessing complete! Check the /tool_output/ folder.")
+print("\nProcessing complete! Check the output/tool_output/ folder.")
 input("\nPress Enter to exit...")

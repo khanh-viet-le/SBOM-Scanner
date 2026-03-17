@@ -1,15 +1,14 @@
 import os
 import json
-import sys
 from compare_subtree import compare_subtrees
 
 # ============================================================
 # CONFIGURATION
 # ============================================================
 # Path to the list of direct nodes
-INPUT_LIST_PATH = os.path.join("tool_output", "tool_output_direct_nodes.json")
+INPUT_LIST_PATH = os.path.join("output\\tool_output", "tool_output_direct_nodes.json")
 # Folder to save the resulting subtrees
-OUTPUT_DIR = "query_output"
+OUTPUT_DIR = "output\\query_output"
 
 def process_all_direct_nodes():
     # 1. Check if the input file exists
@@ -34,9 +33,9 @@ def process_all_direct_nodes():
             subtree_name = item.get("name")
             subtree_version = item.get("version")
 
-            tool_f   = f"query_output\\query_output_subtree_{subtree_name}_{subtree_version}.json"
-            client_f = f"tool_output\\tool_output_subtree_{subtree_name}_{subtree_version}.json"
-            result_f = f"compare_result\\compare_result_subtree_{subtree_name}_{subtree_version}.json"
+            tool_f   = f"output\\query_output\\query_output_subtree_{subtree_name}_{subtree_version}.json"
+            client_f = f"output\\tool_output\\tool_output_subtree_{subtree_name}_{subtree_version}.json"
+            result_f = f"output\\compare_result\\compare_result_subtree_{subtree_name}_{subtree_version}.json"
 
             can_process = 1 == 1
             for f in [tool_f, client_f]:
@@ -48,7 +47,7 @@ def process_all_direct_nodes():
 
             result = compare_subtrees(tool_f, client_f)
 
-            out = os.path.join(os.path.dirname(os.path.abspath("compare_result")), result_f)
+            out = os.path.join(os.path.dirname(os.path.abspath("output")), result_f)
             os.makedirs(os.path.dirname(out), exist_ok=True)
 
             with open(out, "w", encoding="utf-8") as f:
