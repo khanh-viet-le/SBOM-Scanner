@@ -52,22 +52,34 @@ class DatabaseManager:
                 self.tunnel.stop()
             raise
 
-    def get_component_tree(self, name, version):
+    def get_component_tree(self, name, version, group = None):
         """2. Queries the DB for the specific name and version"""
         if not self.connection:
             raise Exception("Database not connected.")
 
-        sql = """
-        SELECT public.get_component_tree_json(c.id::uuid, 10)
-        FROM public.t_components c
-        WHERE c.name = %s 
-          AND c.version = %s;
-        """
+        if group is None:
+            sql = """
+            SELECT public.get_component_tree_json(c.id::uuid, 10)
+            FROM public.t_components c
+            WHERE c.name = %s 
+              AND c.version = %s
+              AND c.group IS NULL;
+            """
+            params = (name, version)
+        else:
+            sql = """
+            SELECT public.get_component_tree_json(c.id::uuid, 10)
+            FROM public.t_components c
+            WHERE c.name = %s 
+              AND c.version = %s
+              AND c.group = %s;
+            """
+            params = (name, version, group)
         
         cursor = None
         try:
             cursor = self.connection.cursor()
-            cursor.execute(sql, (name, version))
+            cursor.execute(sql, params)
             result = cursor.fetchone()
             
             if result:

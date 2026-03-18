@@ -11,13 +11,13 @@ from sbom_vulnerability_tool import SBOMVulnerabilityTool
 # ============================================================
 
 # Just the filename, we will prepend the folder path below
-SBOM_FILENAME      = "juice_shop_bom.1.4.json"
+SBOM_FILENAME      = "bom.1.4.json"
 
 GEN_ALL_DIRECT     = True   
 GEN_ALL_SUBGRAPH   = True  
 
-SUBTREE_NAME       = "express-jwt"  
-SUBTREE_VERSION    = "0.1.3"   
+SUBTREE_NAME       = "serve-index"  
+SUBTREE_VERSION    = "1.9.1"   
 SUBTREE_GROUP      = None
 
 FIND_BY_COMPONENT  = False  
