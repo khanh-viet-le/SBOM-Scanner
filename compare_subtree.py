@@ -27,27 +27,50 @@ CLIENT_FILE = r"tool_output\\tool_output_subtree_file-type_16.5.4.json"         
 OUTPUT_FILE = "compare_result\\compare_result_subtree_file-type_16.5.4.json"              # save result here
 
 # ============================================================
-# HELPERS
+# HELPERS (UPDATED)
 # ============================================================
 
-def node_key(node):
-    return f"{node.get('name')}@{node.get('version')}@{node.get('group')}"
+def sanitize_node(node):
+    """
+    Standardizes node data to handle cases where 'name' includes the 'group'.
+    Example: name='@babel/core', group=None  ->  name='core', group='@babel'
+    """
+    name = node.get("name") or ""
+    group = node.get("group") or ""
 
+    # If name contains the group (e.g., @typespec/ts-http-runtime)
+    if "/" in name and name.startswith("@"):
+        parts = name.split("/", 1)
+        # Only override group if it was missing, or keep existing
+        group = parts[0]
+        name = parts[1]
+    
+    return name, group
+
+def node_key(node):
+    """Generates a key based on sanitized values."""
+    name, group = sanitize_node(node)
+    version = node.get('version')
+    return f"{name}@{version}@{group}"
 
 def node_label(node):
-    g = f"{node.get('group')}/" if node.get('group') else ""
-    return f"{g}{node.get('name')}@{node.get('version')}"
-
+    """Generates a label based on sanitized values."""
+    name, group = sanitize_node(node)
+    version = node.get('version')
+    g = f"{group}/" if group else ""
+    return f"{g}{name}@{version}"
 
 def normalize(node):
-    """Strip extra fields (id, updated_at, last_risk_score), keep only name/version/group/children."""
+    """
+    Strip extra fields and apply sanitization recursively.
+    """
+    name, group = sanitize_node(node)
     return {
-        "name"    : node.get("name"),
+        "name"    : name,
         "version" : node.get("version"),
-        "group"   : node.get("group"),
+        "group"   : group,
         "children": [normalize(c) for c in node.get("children", [])]
     }
-
 
 # ============================================================
 # CORE COMPARE
@@ -60,6 +83,10 @@ def compare_nodes(tool_node, client_node, path="root"):
     for prop in ["name", "version", "group"]:
         tool_val   = tool_node.get(prop)
         client_val = client_node.get(prop)
+
+        tool_val= (tool_val.split("/"))[-1]
+        client_val = (client_val.split("/"))[-1]
+
         if tool_val != client_val:
             issues.append({
                 "type"    : "WRONG_PROPERTY",

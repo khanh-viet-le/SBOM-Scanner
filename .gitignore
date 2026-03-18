@@ -5,4 +5,5 @@
 /output/query_output/*.json
 /output/tool_output/*.json
 /sbom_files/*.json
-sshkey.pem
+*.pem
+.env

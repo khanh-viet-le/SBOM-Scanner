@@ -32,20 +32,27 @@ def process_all_direct_nodes():
     for item in nodes:
             subtree_name = item.get("name")
             subtree_version = item.get("version")
+            subtree_group = item.get("group")
 
-            tool_f   = f"output\\query_output\\query_output_subtree_{subtree_name}_{subtree_version}.json"
-            client_f = f"output\\tool_output\\tool_output_subtree_{subtree_name}_{subtree_version}.json"
+            query_f   = f"output\\query_output\\query_output_subtree_{subtree_name}_{subtree_version}.json"
+            tool_f = f"output\\tool_output\\tool_output_subtree_{subtree_name}_{subtree_version}.json"
             result_f = f"output\\compare_result\\compare_result_subtree_{subtree_name}_{subtree_version}.json"
 
+            if (subtree_group != None) & (not os.path.exists(query_f)):
+                query_f = query_f.replace(subtree_group + "/", "")
+            
+            tool_f = tool_f.replace("/", "_")
+            result_f = result_f.replace("/", "_")
+
             can_process = 1 == 1
-            for f in [tool_f, client_f]:
+            for f in [query_f, tool_f]:
                 if not os.path.exists(f):
                     print(f"\nERROR: File not found: {f}")
                     can_process = 1 != 1
             
             if not can_process: continue
 
-            result = compare_subtrees(tool_f, client_f)
+            result = compare_subtrees(query_f, tool_f)
 
             out = os.path.join(os.path.dirname(os.path.abspath("output")), result_f)
             os.makedirs(os.path.dirname(out), exist_ok=True)

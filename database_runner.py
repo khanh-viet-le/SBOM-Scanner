@@ -1,6 +1,12 @@
 import os
 import json
+import time
 from database_manager import DatabaseManager
+from dotenv import load_dotenv
+
+
+# Load the variables from the .env file
+load_dotenv()
 
 # ============================================================
 # CONFIGURATION
@@ -32,43 +38,57 @@ def process_all_direct_nodes():
     # 4. Initialize Database Connection
     db = DatabaseManager()
 
+    # Initial Connection
+    db.connect()
+
     for index, item in enumerate(nodes):
-           
-            subtree_name = (item.get("name").split('/'))[-1]
-            subtree_version = item.get("version")
-            subtree_group = item.get("group")
+        
+        subtree_name = (item.get("name").split('/'))[-1]
+        subtree_version = item.get("version")
+        subtree_group = item.get("group")
 
-            if not subtree_name or not subtree_version:
-                continue
+        if not subtree_name or not subtree_version:
+            continue
 
+        max_retries = int(os.getenv("MAX_RETRIES", 2))
+        for attempt in range(max_retries):
             try:
-                if index % 5 == 0: db.connect()
+                print(f"\n[{index+1}/{len(nodes)}] Fetching {subtree_name}@{subtree_version}...")
                 
-                print(f"\nFetching tree for {subtree_name}@{subtree_version} and group: {subtree_group}...")
+                # Logic 2: Fetch the data
                 tree_data = db.get_component_tree(subtree_name, subtree_version, subtree_group)
                 
                 if tree_data:
-                    # 1. Ensure the output directory exists
-                    if not os.path.exists(OUTPUT_DIR):
-                        os.makedirs(OUTPUT_DIR)
-                        print(f"Created directory: {OUTPUT_DIR}")
-
-                    # 2. Define the filename following your format
                     file_name = f"query_output_subtree_{subtree_name}_{subtree_version}.json"
                     file_path = os.path.join(OUTPUT_DIR, file_name)
-
-                    # 3. Save the result to the JSON file
                     with open(file_path, "w", encoding="utf-8") as f:
                         json.dump(tree_data, f, indent=2, ensure_ascii=False)
-
-                    print(f"SUCCESS: Data saved to {file_path}")
+                    print(f"  SUCCESS saved.")
                 else:
-                    print(f"No component found matching {subtree_name} version {subtree_version}")
+                    print(f"  NOT FOUND in database.")
+                
+                # If success, break the retry loop
+                break 
 
             except Exception as e:
-                print(f"Main Loop Error: {e}")
-            finally:
-                if index % 5 == 4: db.disconnect()
+                print(f"  ERROR on attempt {attempt + 1}: {e}")
+                print("  Re-establishing connection...")
+                
+                # Forced cleanup and reconnection
+                db.disconnect()
+                time.sleep(2) # Brief pause for port cleanup
+                db.connect()
+                
+                if attempt == max_retries - 1:
+                    print(f"  FAILED permanently for {subtree_name}")
+
+        # Periodic refresh every 10 nodes to prevent "stale" connections
+        if index % 10 == 9:
+            print("\n--- Periodic connection refresh ---")
+            db.disconnect()
+            db.connect()
+
+    db.disconnect()
 
 if __name__ == "__main__":
     process_all_direct_nodes()

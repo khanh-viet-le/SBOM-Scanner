@@ -1,19 +1,27 @@
 import paramiko
 import pg8000
 from sshtunnel import SSHTunnelForwarder
+from dotenv import load_dotenv
+import os
 
 # ============================================================
 # CONFIGURATION
 # ============================================================
-SSH_HOST = "35.74.242.225"
-SSH_USER = "qc"
-SSH_PKEY = "sshkey.pem"
 
-DB_HOST = "35.74.242.225"
-DB_NAME = "vuln_pilot"
-DB_USER = "postgres"
-DB_PASS = "password"
-DB_PORT = 15432
+# Load the variables from the .env file
+load_dotenv()
+
+SSH_HOST = os.getenv("SSH_HOST")
+SSH_USER = os.getenv("SSH_USER")
+SSH_PKEY = os.getenv("SSH_PKEY")
+
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_PORT = int(os.getenv("DB_PORT", 15432))
+
+MAX_DEPTH = int(os.getenv("MAX_DEPTH", 10))
 
 # Output folder configuration
 OUTPUT_DIR = "query_output"
@@ -33,7 +41,8 @@ class DatabaseManager:
                 ssh_username=SSH_USER,
                 ssh_pkey=mypkey,
                 remote_bind_address=(DB_HOST, DB_PORT),
-                local_bind_address=('127.0.0.1', 6543)
+                local_bind_address=('127.0.0.1', 6543),
+                set_keepalive=30 # Sends a packet every 30s to keep the tunnel alive
             )
             self.tunnel.start()
 
@@ -42,7 +51,8 @@ class DatabaseManager:
                 password=DB_PASS,
                 database=DB_NAME,
                 host=self.tunnel.local_bind_host,
-                port=self.tunnel.local_bind_port
+                port=self.tunnel.local_bind_port,
+                timeout=600 # Increases timeout to 10 minutes for large trees
             )
 
             print("Successfully connected to Database via SSH using pg8000.")
@@ -59,22 +69,22 @@ class DatabaseManager:
 
         if group is None:
             sql = """
-            SELECT public.get_component_tree_json(c.id::uuid, 10)
+            SELECT public.get_component_tree_json(c.id::uuid, %s)
             FROM public.t_components c
             WHERE c.name = %s 
               AND c.version = %s
               AND c.group IS NULL;
             """
-            params = (name, version)
+            params = (MAX_DEPTH, name, version)
         else:
             sql = """
-            SELECT public.get_component_tree_json(c.id::uuid, 10)
+            SELECT public.get_component_tree_json(c.id::uuid, %s)
             FROM public.t_components c
             WHERE c.name = %s 
               AND c.version = %s
               AND c.group = %s;
             """
-            params = (name, version, group)
+            params = (MAX_DEPTH, name, version, group)
         
         cursor = None
         try:

@@ -1,6 +1,15 @@
 import json
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Helper to convert string "True"/"False" from .env to Python Booleans
+def get_env_bool(key, default=False):
+    val = os.getenv(key, str(default)).lower()
+    return val in ("true", "1", "yes")
 
 # Add current dir to path for local imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -10,20 +19,19 @@ from sbom_vulnerability_tool import SBOMVulnerabilityTool
 # CONFIGURATION — Edit these values
 # ============================================================
 
-# Just the filename, we will prepend the folder path below
-SBOM_FILENAME      = "mate_match.json"
+SBOM_FILENAME      = os.getenv("SBOM_FILENAME", "bom.1.4.json")
 
-GEN_ALL_DIRECT     = True   
-GEN_ALL_SUBGRAPH   = True  
+GEN_ALL_DIRECT     = get_env_bool("GEN_ALL_DIRECT", True)
+GEN_ALL_SUBGRAPH   = get_env_bool("GEN_ALL_SUBGRAPH", True)
 
-SUBTREE_NAME       = "serve-index"  
-SUBTREE_VERSION    = "1.9.1"   
-SUBTREE_GROUP      = None
+SUBTREE_NAME       = os.getenv("SUBTREE_NAME", "serve-index")
+SUBTREE_VERSION    = os.getenv("SUBTREE_VERSION", "1.9.1")
+SUBTREE_GROUP      = os.getenv("SUBTREE_GROUP") or None
 
-FIND_BY_COMPONENT  = False  
-SEARCH_NAME        = None
-SEARCH_VERSION     = None
-SEARCH_GROUP       = None
+FIND_BY_COMPONENT  = get_env_bool("FIND_BY_COMPONENT", False)
+SEARCH_NAME        = os.getenv("SEARCH_NAME") or None
+SEARCH_VERSION     = os.getenv("SEARCH_VERSION") or None
+SEARCH_GROUP       = os.getenv("SEARCH_GROUP") or None
 
 # ============================================================
 # PATH SETUP
