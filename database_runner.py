@@ -36,6 +36,7 @@ def process_all_direct_nodes():
            
             subtree_name = item.get("name")
             subtree_version = item.get("version")
+            subtree_group = item.get("group")
 
             if not subtree_name or not subtree_version:
                 continue
@@ -43,8 +44,8 @@ def process_all_direct_nodes():
             try:
                 if index % 5 == 0: db.connect()
                 
-                print(f"\nFetching tree for {subtree_name}@{subtree_version}...")
-                tree_data = db.get_component_tree(subtree_name, subtree_version)
+                print(f"\nFetching tree for {subtree_name}@{subtree_version} and group: {subtree_group}...")
+                tree_data = db.get_component_tree(subtree_name, subtree_version, subtree_group)
                 
                 if tree_data:
                     # 1. Ensure the output directory exists
