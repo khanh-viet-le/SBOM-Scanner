@@ -11,7 +11,7 @@ from sbom_vulnerability_tool import SBOMVulnerabilityTool
 # ============================================================
 
 # Just the filename, we will prepend the folder path below
-SBOM_FILENAME      = "bom.1.4.json"
+SBOM_FILENAME      = "mate_match.json"
 
 GEN_ALL_DIRECT     = True   
 GEN_ALL_SUBGRAPH   = True  

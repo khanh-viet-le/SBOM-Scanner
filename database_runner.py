@@ -34,7 +34,7 @@ def process_all_direct_nodes():
 
     for index, item in enumerate(nodes):
            
-            subtree_name = item.get("name")
+            subtree_name = (item.get("name").split('/'))[-1]
             subtree_version = item.get("version")
             subtree_group = item.get("group")
 
