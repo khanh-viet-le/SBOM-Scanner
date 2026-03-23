@@ -13,7 +13,7 @@ def get_env_bool(key, default=False):
 
 # Add current dir to path for local imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from sbom_vulnerability_tool import SBOMVulnerabilityTool
+from sbom_vulnerability_tool_v2 import SBOMVulnerabilityTool
 
 # ============================================================
 # CONFIGURATION — Edit these values
